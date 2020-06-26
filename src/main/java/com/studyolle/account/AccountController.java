@@ -54,17 +54,16 @@ public class AccountController {
 
         String view = "account/checked-Email";
         if(account == null) {
-            model.addAttribute("errro", "wrong.email");
+            model.addAttribute("error", "wrong.email");
             return view;
         }
 
         if( !account.getEmailCheckToken().equals(token)) {
-            model.addAttribute("errro", "wrong.token");
+            model.addAttribute("error", "wrong.token");
             return view;
         }
 
-        account.setEmailVerified(true);
-        account.setJoinedAt(LocalDateTime.now());
+        account.completeSignUp();
         model.addAttribute("numberOfUser", accountRepository.count());
         model.addAttribute("nickname", account.getNickname());
 
