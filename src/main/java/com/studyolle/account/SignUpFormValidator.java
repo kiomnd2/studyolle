@@ -1,5 +1,7 @@
 package com.studyolle.account;
 
+import com.studyolle.account.AccountRepository;
+import com.studyolle.account.SignUpForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;

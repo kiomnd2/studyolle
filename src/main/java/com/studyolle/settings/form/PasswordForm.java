@@ -1,4 +1,4 @@
-package com.studyolle.settings;
+package com.studyolle.settings.form;
 
 import jdk.jfr.DataAmount;
 import lombok.Data;

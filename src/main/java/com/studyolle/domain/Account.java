@@ -45,7 +45,7 @@ public class Account {
     private String profileImage;
 
 
-    private boolean studyCreateByEmail;
+    private boolean studyCreatedByEmail;
 
     private boolean studyCreatedByWeb;
 
