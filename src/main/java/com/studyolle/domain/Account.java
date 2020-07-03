@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -59,6 +60,8 @@ public class Account {
 
     private LocalDateTime emailCheckTokenGeneratedAt;
 
+    @ManyToMany
+    private Set<Tag> tags;
 
 
     public void generateEmailCheckToken() {
