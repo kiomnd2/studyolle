@@ -7,6 +7,7 @@ import com.studyolle.account.AccountService;
 import com.studyolle.account.CurrentUser;
 import com.studyolle.domain.Account;
 import com.studyolle.domain.Tag;
+import com.studyolle.domain.Zone;
 import com.studyolle.settings.form.Notifications;
 import com.studyolle.settings.form.PasswordForm;
 import com.studyolle.settings.form.Profile;
@@ -15,11 +16,11 @@ import com.studyolle.settings.validator.NicknameForm;
 import com.studyolle.settings.validator.NicknameValidator;
 import com.studyolle.settings.validator.PasswordFormValidator;
 import com.studyolle.tag.TagRepository;
+import com.studyolle.zone.ZoneForm;
+import com.studyolle.zone.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -29,7 +30,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,6 +42,7 @@ public class SettingsController {
     private final ModelMapper modelMapper;
     private  final NicknameValidator nicknameValidator;
     private final TagRepository tagRepository;
+    private final ZoneRepository zoneRepository;
     private final ObjectMapper objectMapper;
 
 
@@ -61,6 +62,9 @@ public class SettingsController {
 
     static final String SETTINGS_TAGS_VIEW_NAME = "settings/tags";
     static final String SETTINGS_TAGS_URL = "/settings/tags";
+
+    static final String SETTINGS_ZONE_VIEW_NAME = "settings/zones";
+    static final String SETTINGS_ZONE_URL = "/settings/zones";
 
 
 
@@ -145,7 +149,7 @@ public class SettingsController {
         model.addAttribute("tags", tags.stream().map(Tag::getTitle).collect(Collectors.toList()));
 
         List<String> allTags = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
-        model.addAttribute("whitelist", objectMapper.writeValueAsBytes(allTags));
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(allTags));
         return SETTINGS_TAGS_VIEW_NAME;
     }
 
@@ -157,7 +161,6 @@ public class SettingsController {
         if( tag == null ){
             tag = tagRepository.save(Tag.builder().title(title).build());
         }
-
         accountService.addTag(account, tag);
 
         return ResponseEntity.ok().build();
@@ -178,7 +181,42 @@ public class SettingsController {
     }
 
 
+    @GetMapping(SETTINGS_ZONE_URL)
+    public String updateZoneForm(@CurrentUser Account account, Model model) throws JsonProcessingException {
+        model.addAttribute(account);
 
+        Set<Zone>  zones = accountService.getZone(account);
+        model.addAttribute("zones", zones.stream().map(Zone::toString).collect(Collectors.toList()));
+
+        List<String> allZones = zoneRepository.findAll().stream().map(Zone::toString).collect(Collectors.toList());
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(allZones));
+
+        return SETTINGS_ZONE_VIEW_NAME;
+    }
+
+    @PostMapping(SETTINGS_ZONE_URL+"/add")
+    public ResponseEntity addZones(@CurrentUser Account account, @RequestBody ZoneForm zoneForm) {
+        Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
+        if (zone == null) {
+            return  ResponseEntity.badRequest().build();
+        }
+
+        accountService.addZone(account, zone);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(SETTINGS_ZONE_URL+"/remove")
+    public ResponseEntity removeZone(@CurrentUser Account account, @RequestBody ZoneForm zoneForm) {
+        Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
+        if (zone == null) {
+            return  ResponseEntity.badRequest().build();
+        }
+
+        accountService.removeZone(account, zone);
+
+        return ResponseEntity.ok().build();
+    }
 
 
 

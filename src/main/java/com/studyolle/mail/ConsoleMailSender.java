@@ -1,4 +1,4 @@
-package com.studyolle;
+package com.studyolle.mail;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -12,7 +12,7 @@ import javax.mail.internet.MimeMessage;
 import java.io.InputStream;
 
 @Component
-@Profile("local")
+@Profile({"local","dev"})
 @Slf4j
 public class ConsoleMailSender implements JavaMailSender {
 
