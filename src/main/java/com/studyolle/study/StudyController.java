@@ -37,8 +37,12 @@ public class StudyController {
 
     @GetMapping("/study/{path}")
     public String viewStudy(@CurrentUser Account account, @PathVariable String path, Model model) {
+
+        Study study = studyService.getStudy(path);
+
+
         model.addAttribute(account);
-        model.addAttribute(studyRepository.findByPath(path));
+        model.addAttribute(study);
         return "study/view" ;
     }
 
@@ -51,14 +55,25 @@ public class StudyController {
     }
 
     @PostMapping("/new-study")
-    public String newStudySubmit(@CurrentUser Account account, @Valid StudyForm studyForm, Errors errors) {
+    public String newStudySubmit(@CurrentUser Account account, @Valid StudyForm studyForm, Errors errors, Model model) {
         if (errors.hasErrors()) {
+            model.addAttribute(account);
             return "study/form";
         }
 
         Study newStudy =  studyService.createNewStudy(modelMapper.map(studyForm, Study.class), account );
 
         return "redirect:/study/" + URLEncoder.encode(newStudy.getPath(), StandardCharsets.UTF_8);
+    }
+
+    @GetMapping("/study/{path}/members")
+    public String viewStudyMember(@CurrentUser Account account, @PathVariable String path, Model model) {
+
+        Study study = studyService.getStudy(path);
+
+        model.addAttribute(account);
+        model.addAttribute(study);
+        return "study/members";
     }
 
 }

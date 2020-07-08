@@ -41,6 +41,7 @@ import java.util.Set;
 @Transactional
 @RequiredArgsConstructor
 public class AccountService implements UserDetailsService {
+
     private final AccountRepository accountRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
@@ -184,5 +185,14 @@ public class AccountService implements UserDetailsService {
     public Set<Zone> getZone(Account account) {
         Optional<Account> byId = accountRepository.findById(account.getId());
         return byId.orElseThrow().getZones();
+    }
+
+    public Account getAccount(String nickname) {
+        Account account = accountRepository.findByNickname(nickname);
+        if( account == null) {
+            throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
+        }
+
+        return account;
     }
 }
