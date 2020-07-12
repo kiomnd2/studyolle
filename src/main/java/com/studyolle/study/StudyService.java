@@ -2,6 +2,8 @@ package com.studyolle.study;
 
 import com.studyolle.domain.Account;
 import com.studyolle.domain.Study;
+import com.studyolle.domain.Tag;
+import com.studyolle.domain.Zone;
 import com.studyolle.settings.StudyDescriptionForm;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -24,24 +26,103 @@ public class StudyService {
         return newStudy;
     }
 
+
     public Study getStudyToUpdate(Account account, String path) {
         Study study = this.getStudy(path);
-        if (!account.isManagerOf(study)) {
-            throw new AccessDeniedException("해당 기능을 사용할 수 없습니다");
-        }
+        checkIfManager(account, study);
         return study;
     }
 
+
+
     public Study getStudy(String path) {
         Study byPath = studyRepository.findByPath(path);
+        checkIfExistingStudy(path, byPath);
+        return byPath;
+    }
+
+
+    public Study getStudyToUpdateTag(Account account, String path) {
+        Study study = studyRepository.findStudyWithTagsByPath(path);
+        checkIfExistingStudy(path, study);
+        checkIfManager(account, study);
+        return study;
+    }
+
+
+    public Study getStudyToUpdateZone(Account account, String path) {
+        Study study = studyRepository.findStudyWithZonesByPath(path);
+        checkIfExistingStudy(path, study);
+        checkIfManager(account, study);
+        return study;
+    }
+
+
+    public Study getStudyToUpdateStatus(Account account, String path) {
+        Study study = studyRepository.findStudyWithManagersByPath(path);
+        checkIfExistingStudy(path, study);
+        checkIfManager(account, study);
+        return study;
+    }
+
+    private void checkIfManager(Account account, Study study) {
+        if (!account.isManagerOf(study)) {
+            throw new AccessDeniedException("해당 기능을 사용할 수 없습니다");
+        }
+    }
+
+    private void checkIfExistingStudy(String path, Study byPath) {
         if( byPath == null) {
             throw new IllegalArgumentException(path + "에 해당하는 스터디가 없습니다.");
         }
-        return byPath;
     }
+
 
     public void updateStudyDescription(Study study, StudyDescriptionForm studyDescriptionForm) {
         modelMapper.map(studyDescriptionForm, study);
     }
 
+    public void updateStudyImage(Study study, String image) {
+        study.setImage(image);
+    }
+
+    public void enableStudyBanner(Study study) {
+        study.setUseBanner(true);
+    }
+
+    public void disableStudyBanner(Study study) {
+        study.setUseBanner(false);
+    }
+
+    public void addTag(Study study, Tag tag) {
+        study.getTags().add(tag);
+    }
+
+    public void removeTag(Study study, Tag tag) {
+        study.getTags().remove(tag);
+    }
+
+    public void addZone(Study study, Zone zone) {
+        study.getZones().add(zone);
+    }
+
+    public void removeZone(Study study, Zone zone) {
+        study.getZones().remove(zone);
+    }
+
+    public void publish(Study study) {
+        study.publish();
+    }
+
+    public void close(Study study) {
+        study.close();
+    }
+
+    public void startRecruit(Study study) {
+        study.startRecruit();
+    }
+
+    public void stopRecruit(Study study) {
+        study.stopRecruit();
+    }
 }
