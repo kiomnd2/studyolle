@@ -5,6 +5,7 @@ import com.studyolle.domain.Study;
 import com.studyolle.domain.Tag;
 import com.studyolle.domain.Zone;
 import com.studyolle.settings.StudyDescriptionForm;
+import com.studyolle.study.form.StudyForm;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.access.AccessDeniedException;
@@ -124,5 +125,41 @@ public class StudyService {
 
     public void stopRecruit(Study study) {
         study.stopRecruit();
+    }
+
+    public boolean isValidPath(String newPath) {
+        if (!newPath.matches(StudyForm.VALID_PATH_PATTERN)){
+            return false;
+        }
+        return !studyRepository.existsByPath(newPath);
+    }
+
+    public boolean isValidTitle(String newTitle) {
+        return newTitle.length() <= 50;
+    }
+
+    public void updateStudyPath(Study study, String newPath) {
+        study.setPath(newPath);
+    }
+
+
+    public void updateStudyTitle(Study study, String newTitle) {
+        study.setTitle(newTitle);
+    }
+
+    public void remove(Study study) {
+        if (study.isRemovable()) {
+            studyRepository.delete(study);
+        } else {
+            throw new IllegalArgumentException("스터디를 삭제할 수 없습니다");
+        }
+    }
+
+    public void removeMember(Study study, Account account) {
+        study.getManagers().add(account);
+    }
+
+    public void addMember(Study study, Account account) {
+        study.getManagers().remove(account);
     }
 }
