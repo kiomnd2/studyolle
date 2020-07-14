@@ -22,7 +22,7 @@ import java.util.Set;
         @NamedAttributeNode("tags"),
         @NamedAttributeNode("managers")})
 
-@NamedEntityGraph(name="Study.withRZonesAndManagers", attributeNodes = {
+@NamedEntityGraph(name="Study.withZonesAndManagers", attributeNodes = {
         @NamedAttributeNode("zones"),
         @NamedAttributeNode("managers")})
 
